@@ -13,7 +13,7 @@ ENV CGO_LDFLAGS="-L/opt/ort/lib"
 ENV GOPROXY=direct
 
 WORKDIR /build
-COPY go_server/main.go ./
+COPY go_server/main.go .
 # 호환성을 위해 onnxruntime_go 버전을 v1.14.0으로 고정
 RUN go mod init yolo-server && \
     go get github.com/yalue/onnxruntime_go@v1.14.0 && \
@@ -30,8 +30,6 @@ COPY --from=builder /out/server ./server
 
 COPY --from=builder /opt/ort/lib/libonnxruntime.so.1.21.0 /usr/local/lib/libonnxruntime.so
 RUN ldconfig
-
-COPY model/yolo26n.onnx .
 
 EXPOSE 8000
 

@@ -1,54 +1,75 @@
 # Image Streaming API: Python vs Go
 
-An object detection API server using **YOLOv26n**, designed to benchmark WebSocket-based image streaming latency between Python and Go implementations.
+An object detection system using **YOLOv26n** for benchmarking WebSocket-based image streaming latency between Python and Go server implementations.
 
-This repository was written with [Claude Code](https://claude.ai/code).
+![bbox](/assets/bbox.gif)
+
+This repository was developed with assistance from Claude Code and Gemini.
 
 ## Overview
 
-This project compares the end-to-end latency of real-time image streaming over WebSocket between:
+This project compares the end-to-end latency of real-time image streaming using WebSockets between:
 
-- **Python server** - built with FastAPI / websockets
-- **Go server** - built with the standard `net/http` + `gorilla/websocket`
+- **Python server** — built with FastAPI and websockets
+- **Go server** — built with the standard `net/http` and `gorilla/websocket`
 
-Both servers run the same YOLO inference pipeline and expose an identical WebSocket interface.
+Both servers run the same YOLO inference pipeline and provide an identical WebSocket interface.
 
 ## Getting Started
 
-### 1. Start the Server
-
-#### Python
+### 1. Download Model Weights
 
 ```sh
-docker compose up py-server
+$ cd py_server
+$ uv run utils/get_model.py
 ```
 
-#### Go
+### 2. Start the Servers
 
 ```sh
-docker compose up go-server
+$ docker compose build
+$ docker compose up
 ```
 
-### 2. Run the Client
+- Go server: `http://localhost:8001`
+- Python server: `http://localhost:8000`
 
-Edit `VIDEO_IN` in `py_server/client.py` to point to your input video, then:
+### 3. Run the Client
 
 ```sh
-cd py_server
-uv run client.py
+$ cd py_server
+$ uv run client.py \
+    --video-in "assets/test.mp4" \
+    --bench-out "results/go_result.csv" \
+    --server-type "go" \
+    --clients 6
 ```
 
-Results are saved to the paths defined by `VIDEO_OUT` (annotated video) and `BENCH_OUT` (latency log).
+`--server-type` must be set to `py` or `go`.
 
-### 3. Deploy to Google Cloud Run
+## Results
 
-```sh
-docker tag yolo-stream gcr.io/YOUR_PROJECT/yolo-stream
-docker push gcr.io/YOUR_PROJECT/yolo-stream
+- OS: Windows 11
+- CPU: AMD Ryzen 5 7500F
+- Python: 3.12.12
+- Go: 1.22.8
 
-gcloud run deploy yolo-stream \
-  --image gcr.io/YOUR_PROJECT/yolo-stream \
-  --platform managed \
-  --region asia-northeast3 \
-  --allow-unauthenticated
-```
+### Single Client Benchmark
+
+Measurements are averaged across **three runs** with a single client connection.
+
+| Metric          | Go Server    | Python Server |
+| --------------- | ------------ | ------------- |
+| Average Latency | **30.51 ms** | 35.13 ms      |
+| Average FPS     | **33.47**    | 28.71         |
+| P95 Latency     | **41.18 ms** | 41.42 ms      |
+| P99 Latency     | **50.39 ms** | 54.60 ms      |
+
+### Multi-Client Benchmark (6 concurrent clients)
+
+| Metric          | Go Server     | Python Server |
+| --------------- | ------------- | ------------- |
+| Average Latency | **117.87 ms** | 122.74 ms     |
+| Average FPS     | **8.83**      | 8.41          |
+| P95 Latency     | **155.04 ms** | 162.41 ms     |
+| P99 Latency     | 190.62 ms     | **186.82 ms** |

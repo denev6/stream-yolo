@@ -6,10 +6,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
-# Mirror the on-disk layout so the relative model path resolves correctly:
-#   main.py uses  "../model/yolo26n.onnx"
-#   container:    /app/py_server/main.py  →  /app/model/yolo26n.onnx  (volume)
-WORKDIR /app/py_server
+WORKDIR /app
 
 COPY py_server/pyproject.toml .
 
@@ -21,8 +18,6 @@ RUN pip install --no-cache-dir uv && \
     "onnxruntime>=1.24.2" \
     "opencv-python-headless>=4.13.0.92"
 
-
-COPY model/yolo26n.onnx .
 COPY py_server/main.py .
 
 EXPOSE 8000

@@ -3,3 +3,6 @@ __pycache__
 .ruff_cache
 .idea
 .vscode
+
+results/**
+/*.bat

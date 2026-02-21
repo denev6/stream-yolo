@@ -22,11 +22,11 @@ import (
 )
 
 const (
-	modelPath     = "yolo26n.onnx"
+	modelPath     = "model/yolo26n.onnx"
 	inputSize     = 640
 	planeSize     = inputSize * inputSize // 640×640
 	confThreshold = 0.4
-	listenAddr    = ":8080"
+	listenAddr    = ":8001"
 )
 
 // ── 타입 ────────────────────────────────────────────────────────────────────

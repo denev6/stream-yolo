@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: go_server/Dockerfile
     ports:
-      - "8000:8080"
+      - "8001:8001"
     volumes:
       - ./model:/app/model:ro
 

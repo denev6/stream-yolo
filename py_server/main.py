@@ -8,7 +8,7 @@ import onnxruntime as ort
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 
-MODEL_PATH = "yolo26n.onnx"
+MODEL_PATH = "model/yolo26n.onnx"
 INPUT_SIZE = 640
 CONF_THRESHOLD = 0.4
 
