@@ -1,0 +1,15 @@
+[project]
+name = "py-server"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi[standard]>=0.129.0",
+    "numpy>=2.4.2",
+    "onnx>=1.20.1",
+    "onnxruntime>=1.24.2",
+    "onnxslim>=0.1.85",
+    "opencv-python>=4.13.0.92",
+    "ultralytics>=8.4.14",
+]

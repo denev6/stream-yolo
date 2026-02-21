@@ -1,0 +1,13 @@
+# Exclude everything by default, then whitelist what each server needs.
+**
+
+# Go server source and module files
+!go_server/
+!go_server/**
+
+# Python server source (only the files copied into the image)
+!py_server/main.py
+!py_server/pyproject.toml
+
+# Onnx Model
+!model/
