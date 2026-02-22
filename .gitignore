@@ -4,8 +4,6 @@ __pycache__
 .idea
 .vscode
 
-model/*.pt
-model/*.onnx
 /*.sh
 /*.bat
 

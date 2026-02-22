@@ -22,5 +22,4 @@ jobs:
           script: |
             cd /home/ubuntu/stream-yolo
             git pull origin main
-            docker compose up -d --build go-server nginx
-            docker compose exec -T nginx nginx -s reload
+            docker compose up -d --build --remove-orphans
