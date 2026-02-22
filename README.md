@@ -1,4 +1,4 @@
-# Image Streaming API
+# Image Streaming API with YOLO
 
 An object detection system using **YOLOv26n** for benchmarking WebSocket-based image streaming latency between Python and Go server implementations.
 
@@ -14,6 +14,8 @@ This project compares the end-to-end latency of real-time image streaming using 
 - **Go server** — built with the standard `net/http` and `gorilla/websocket`
 
 Both servers run the same YOLO inference pipeline and provide an identical WebSocket interface.
+
+![overview](/assets/flow.png)
 
 ## Getting Started
 
@@ -55,11 +57,11 @@ $ flutter pub get
 $ flutter run
 ```
 
-![Client-side Screenshot](assets/client.jpg)
+![Client-side Screenshot](/assets/client.png)
 
 ## Test Results
 
-- OS: MacOS 26.2
+- OS: macOS 26.2
 - CPU: Apple M4
 - Python: 3.12.12
 - Go: 1.22.8
