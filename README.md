@@ -55,6 +55,8 @@ $ flutter pub get
 $ flutter run
 ```
 
+![Client-side Screenshot](assets/client.jpg)
+
 ## Test Results
 
 - OS: Windows 11

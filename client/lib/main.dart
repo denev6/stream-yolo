@@ -44,20 +44,44 @@ Uint8List _encodeFrame(Map<String, dynamic> p) {
     }
   } else if (format == 'bgra') {
     final Uint8List bytes = p['bytes'] as Uint8List;
-    frame = img.Image.fromBytes(
-      width: width,
-      height: height,
-      bytes: bytes.buffer,
-      numChannels: 4,
-      order: img.ChannelOrder.bgra,
-    );
+    final int rowStride = p['rowStride'] as int;
+
+    if (rowStride == width * 4) {
+      frame = img.Image.fromBytes(
+        width: width,
+        height: height,
+        bytes: bytes.buffer,
+        numChannels: 4,
+        order: img.ChannelOrder.bgra,
+      );
+    } else {
+      frame = img.Image(width: width, height: height, numChannels: 3);
+      for (int y = 0; y < height; y++) {
+        final int rowOffset = y * rowStride;
+        for (int x = 0; x < width; x++) {
+          final int offset = rowOffset + x * 4;
+          frame.setPixelRgb(
+            x,
+            y,
+            bytes[offset + 2],
+            bytes[offset + 1],
+            bytes[offset],
+          );
+        }
+      }
+    }
   } else {
     return p['bytes'] as Uint8List;
   }
 
-  // 최신 image 패키지는 양수가 시계방향(CW) 회전입니다.
-  final out = rotation != 0 ? img.copyRotate(frame, angle: rotation) : frame;
-  return Uint8List.fromList(img.encodeJpg(out, quality: 60));
+  img.Image out;
+  if (width > height && rotation != 0) {
+    out = img.copyRotate(frame, angle: rotation);
+  } else {
+    out = frame;
+  }
+
+  return Uint8List.fromList(img.encodeJpg(out, quality: 50));
 }
 
 void main() async {
@@ -197,7 +221,7 @@ class _StreamScreenState extends State<StreamScreen> {
   int _fps = 0;
   int _frameCount = 0;
   late Timer _fpsTimer;
-  Size? _streamSize; // 실제 서버로 전송되는 이미지 스트림의 해상도 기록
+  Size? _serverImageSize;
 
   @override
   void initState() {
@@ -220,7 +244,7 @@ class _StreamScreenState extends State<StreamScreen> {
     }
     _cam = CameraController(
       widget.cameras.first,
-      ResolutionPreset.max,
+      ResolutionPreset.medium,
       enableAudio: false,
     );
     try {
@@ -270,10 +294,21 @@ class _StreamScreenState extends State<StreamScreen> {
 
   void _startStream() {
     _cam!.startImageStream((CameraImage image) async {
-      if (_streamSize == null) {
+      if (_serverImageSize == null) {
         if (mounted) {
           setState(() {
-            _streamSize = Size(image.width.toDouble(), image.height.toDouble());
+            if (image.width > image.height &&
+                widget.cameras.first.sensorOrientation != 0) {
+              _serverImageSize = Size(
+                image.height.toDouble(),
+                image.width.toDouble(),
+              );
+            } else {
+              _serverImageSize = Size(
+                image.width.toDouble(),
+                image.height.toDouble(),
+              );
+            }
           });
         }
       }
@@ -319,6 +354,7 @@ class _StreamScreenState extends State<StreamScreen> {
         'height': image.height,
         'rotation': rotation,
         'bytes': image.planes[0].bytes,
+        'rowStride': image.planes[0].bytesPerRow,
       };
     } else {
       params = {
@@ -364,11 +400,14 @@ class _StreamScreenState extends State<StreamScreen> {
       );
     }
 
-    if (_cam == null || !_cam!.value.isInitialized || _streamSize == null) {
+    if (_cam == null ||
+        !_cam!.value.isInitialized ||
+        _serverImageSize == null) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return Scaffold(
+      backgroundColor: Colors.black, // 여백을 검정색으로 처리
       appBar: AppBar(
         title: Text('${widget.ip}:${widget.port}'),
         actions: [
@@ -381,18 +420,22 @@ class _StreamScreenState extends State<StreamScreen> {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          CameraPreview(_cam!),
+          Center(
+            child: AspectRatio(
+              aspectRatio: _serverImageSize!.width / _serverImageSize!.height,
+              child: CameraPreview(_cam!),
+            ),
+          ),
           LayoutBuilder(
             builder: (ctx, constraints) {
               return CustomPaint(
                 painter: DetectionPainter(
                   detections: _detections,
-                  streamSize: _streamSize!,
+                  serverImageSize: _serverImageSize!,
                   displaySize: Size(
                     constraints.maxWidth,
                     constraints.maxHeight,
                   ),
-                  rotation: widget.cameras.first.sensorOrientation,
                 ),
               );
             },
@@ -405,28 +448,25 @@ class _StreamScreenState extends State<StreamScreen> {
 
 class DetectionPainter extends CustomPainter {
   final List<Detection> detections;
-  final Size streamSize;
+  final Size serverImageSize;
   final Size displaySize;
-  final int rotation;
 
   DetectionPainter({
     required this.detections,
-    required this.streamSize,
+    required this.serverImageSize,
     required this.displaySize,
-    required this.rotation,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
-    final bool isRotated = rotation == 90 || rotation == 270;
-    final rotW = isRotated ? streamSize.height : streamSize.width;
-    final rotH = isRotated ? streamSize.width : streamSize.height;
+    final double imgW = serverImageSize.width;
+    final double imgH = serverImageSize.height;
 
-    // 화면(displaySize)을 꽉 채우기 위한 스케일
-    final scale = math.max(displaySize.width / rotW, displaySize.height / rotH);
-    // 중앙 정렬을 위한 오프셋
-    final offsetX = (displaySize.width - scale * rotW) / 2;
-    final offsetY = (displaySize.height - scale * rotH) / 2;
+    // math.max(cover) 대신 math.min(contain)을 사용하여 비율 유지
+    final scale = math.min(displaySize.width / imgW, displaySize.height / imgH);
+
+    final offsetX = (displaySize.width - scale * imgW) / 2;
+    final offsetY = (displaySize.height - scale * imgH) / 2;
 
     final boxPaint = Paint()
       ..color = Colors.greenAccent
