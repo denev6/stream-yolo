@@ -4,5 +4,10 @@ __pycache__
 .idea
 .vscode
 
+model/*.pt
+model/*.onnx
 results/**
 /*.bat
+
+CLAUDE.md
+GEMINI.md

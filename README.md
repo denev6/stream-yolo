@@ -34,11 +34,11 @@ $ docker compose up
 - Go server: `http://localhost:8001`
 - Python server: `http://localhost:8000`
 
-### 3. Run the Client
+### 3-1. Run the Test
 
 ```sh
 $ cd py_server
-$ uv run client.py \
+$ uv run utils/test.py \
     --video-in "assets/test.mp4" \
     --bench-out "results/go_result.csv" \
     --server-type "go" \
@@ -47,7 +47,15 @@ $ uv run client.py \
 
 `--server-type` must be set to `py` or `go`.
 
-## Results
+### 3-2. Run the Client
+
+```sh
+$ cd client
+$ flutter pub get
+$ flutter run
+```
+
+## Test Results
 
 - OS: Windows 11
 - CPU: AMD Ryzen 5 7500F
