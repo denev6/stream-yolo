@@ -1,4 +1,4 @@
-# Image Streaming API: Python vs Go
+# Image Streaming API
 
 An object detection system using **YOLOv26n** for benchmarking WebSocket-based image streaming latency between Python and Go server implementations.
 
@@ -59,27 +59,15 @@ $ flutter run
 
 ## Test Results
 
-- OS: Windows 11
-- CPU: AMD Ryzen 5 7500F
+- OS: MacOS 26.2
+- CPU: Apple M4
 - Python: 3.12.12
 - Go: 1.22.8
-
-### Single Client Benchmark
-
-Measurements are averaged across **three runs** with a single client connection.
-
-| Metric          | Go Server    | Python Server |
-| --------------- | ------------ | ------------- |
-| Average Latency | **30.51 ms** | 35.13 ms      |
-| Average FPS     | **33.47**    | 28.71         |
-| P95 Latency     | **41.18 ms** | 41.42 ms      |
-| P99 Latency     | **50.39 ms** | 54.60 ms      |
-
-### Multi-Client Benchmark (6 concurrent clients)
+- Scenario: 20 concurrent clients
 
 | Metric          | Go Server     | Python Server |
 | --------------- | ------------- | ------------- |
-| Average Latency | **117.87 ms** | 122.74 ms     |
-| Average FPS     | **8.83**      | 8.41          |
-| P95 Latency     | **155.04 ms** | 162.41 ms     |
-| P99 Latency     | 190.62 ms     | **186.82 ms** |
+| Average Latency | **413.09 ms** | 437.10 ms     |
+| Average FPS     | **2.53 ms**   | 2.35 ms       |
+| P95 Latency     | **542.26 ms** | 549.43 ms     |
+| P99 Latency     | **613.48 ms** | 623.11 ms     |

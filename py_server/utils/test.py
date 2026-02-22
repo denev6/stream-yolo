@@ -22,7 +22,7 @@ parser.add_argument("--clients", type=int, default=1, help="동시 접속 클라
 
 args = parser.parse_args()
 
-_ROOT = Path(__file__).parent.parent
+_ROOT = Path(__file__).parent.parent.parent
 VIDEO_IN = str(_ROOT / args.video_in)
 BENCH_OUT = str(_ROOT / args.bench_out)
 
