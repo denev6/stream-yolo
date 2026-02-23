@@ -57,15 +57,16 @@ $ flutter pub get
 $ flutter run
 ```
 
-![Client-side Screenshot](/assets/client.png)
-
 ## Test Results
 
 - OS: macOS 26.2
 - CPU: Apple M4
 - Python: 3.12.12
 - Go: 1.22.8
-- Scenario: 20 concurrent clients
+
+### Latency
+
+Scenario: 20 concurrent clients
 
 | Metric          | Go Server     | Python Server |
 | --------------- | ------------- | ------------- |
@@ -73,3 +74,9 @@ $ flutter run
 | Average FPS     | **2.53 ms**   | 2.35 ms       |
 | P95 Latency     | **542.26 ms** | 549.43 ms     |
 | P99 Latency     | **613.48 ms** | 623.11 ms     |
+
+### CPU Usage
+
+Scenario: 6 concurrent clients
+
+![CPU Usage](/assets/cpu-usage.png)

@@ -3,9 +3,13 @@ __pycache__
 .ruff_cache
 .idea
 .vscode
+.DS_Store
 
 /*.sh
 /*.bat
+/results
+/models/*.pt
+/models/*.onnx
 
 CLAUDE.md
 GEMINI.md
